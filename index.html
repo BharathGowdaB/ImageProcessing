@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+       
+
+    </style>
+    <link rel="stylesheet" href="./style.css">
+    
+</head>
+<body>
+    
+    <div class="filter">
+        <div class="selected-filter">
+            <div id="selectedFilter">Transformation Operations</div>
+            <div class="filter-options">
+                
+                <div onclick="loadOptions('Transformation Operations')">Transformation Operations</div>
+                <div onclick="loadOptions('Smoothing Filters')">Smoothing Filters </div>
+                <div onclick="loadOptions('Sharpening Filters')">Sharpening Filters </div> 
+                <div onclick="loadOptions('Histogram Operations')">Histogram Operations</div>
+               
+            </div>
+        </div>
+        <div id='subFilters' class="sub-filter">
+            
+        </div>
+        <nav>
+            <div>Image Processing</div>
+        </nav>
+    </div>
+
+    <div class="content">
+        <div class="container">
+            <div class="task-bar-top"> </div>
+            <div class="canvas">
+                <label for="inputFile">
+                    <div id="openLabel" class="label"><span>Open An Image For Processing</span></div>
+                </label>
+                <img id='inputImage'></img> 
+                
+                <input type="file" id='inputFile' accept="image/*" onchange="preview()">
+                </div>
+               
+            <div class="task-bar-bottom"></div>
+            </div>
+        <div class="meta-info">
+            <button id="loadButton">Load</button>
+            <button id="addButton">Add</button>
+            
+            <div id="matrix" class="matrix">
+                <div><i><b>Mask</b></i></div>
+                <ol>
+                    <li><input  id="n1"></li>
+                    <li><input  id="n2"></li>
+                    <li><input  id="n3"></li>
+                </ol>
+                <ol>
+                    <li><input id="n4"></li>
+                    <li><input id="n5"></li>
+                    <li><input id="n6"></li>
+                </ol>
+                <ol>
+                    <li><input id="n7"></li>
+                    <li><input id="n8"></li>
+                    <li><input id="n9"></li>
+                </ol>
+                <ol>
+                    
+                    <li><input id="itr"></li>
+                    <li><button onClick="applyFilter(event)">Apply</button></li>
+                </ol>
+            </div>
+        </div>
+        <div  class="container">
+            <div class="task-bar-top">
+                <div onclick="b_undo()" class="min-btn">
+                    <img src='./src/undo.png' style="height:24px"> <span>Undo</span>
+                </div>
+                <div onclick="b_redo()" class="min-btn">
+                    <img src='./src/redo.png' style="height:24px"> <span> Redo</span>
+                </div>
+                <div onclick="b_clear()" class="min-btn">
+                    <img src='./src/clear.png' style="height:24px"> <span> Clear</span>
+                </div>
+                <a  onclick='b_download(this)' class="min-btn">
+                    <img src='./src/download.png' style="height:24px"> <span> Download</span>
+                </a>
+            </div>
+            <div class="canvas">
+                <div id='loadLabel' class="label"><span>Load Image To Get Output</span></div>
+                <img id="outputImage" >
+                <canvas id='outputCanvas' style="display:none"></canvas>
+            </div>
+            
+            <div class="task-bar-bottom"></div>
+            </div>
+        
+    </div>
+    <div  class="extra-content">
+        <div id="histogramGraph">
+            <div class="histogram">
+                <div></div>
+                <div> </div>
+                <canvas id="i_hist" width="510" height="200"></canvas>
+            
+                    
+            </div>
+            
+            <div class="histogram">
+                <div></div>
+                <div></div>
+                <canvas id="o_hist" width="510" height="200"></canvas>
+            
+            </div>
+        </div>
+        
+        
+    </div>
+   
+    <script src="./script.js"></script>
+    <script>
+
+        undoStack = []
+        redoStack = []
+
+        
+        loadButton.addEventListener('click',() => {
+            canvas.init(outputCanvas,img) 
+            undoStack= []
+            redoStack =[]
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            outputImage.src = inputImage.src
+            loadLabel.style.display = 'none'
+        })
+
+        addButton.addEventListener('click', () => {
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            canvas.addImageToBuffer(inputImage)
+            outputImage.src = outputCanvas.toDataURL()
+        })
+        
+        
+    </script>
+    <script>
+
+        function loadOptions(value){
+            options = {
+                'Histogram Operations' : {
+                    isHistogram : true,
+                    btn : [{ label :'Histogram Equalization', funct : b_histFilter}
+                ]},
+                
+                'Transformation Operations': {
+                    btn : [
+                    {label : 'Balck & White' , funct : b_toBackWhite},
+                    {label : 'GrayScale' , funct : b_toGrayScale },
+                    {label : 'Negative' , funct : b_toNegative},
+                ]},
+
+                'Smoothing Filters' : {
+                    btn : [
+                        {label : 'Max Filter' , funct : b_maxFilter},
+                        {label : 'Min Filter' , funct : b_minFilter},
+                        {label : 'Average Filter' , funct : b_averageFilter},
+                        {label : 'Median Filter' , funct : b_medianFilter},
+                    ]},
+
+                'Sharpening Filters' : {
+                    isMatrix : true,
+                    btn : [
+                    {label : 'Laplacian 1' , funct : () => { mask = [[0, -1 ,0] , [ -1 , 4 , -1], [0, -1 ,0]]; loadMask(mask) ; applyFilter('',mask)}},
+                    {label : 'Laplacian 2' , funct : () => { mask = [[-1, -1 ,-1] , [ -1 , 8 , -1], [-1, -1 ,-1]] ; loadMask(mask); applyFilter('',mask)} , },
+                    {label : 'Custom', funct : () => { mask = [[0,0,0],[0,1,0],[0,0,0]] ; loadMask(mask); applyFilter('',mask)}}
+                ]}
+
+            }
+
+            
+
+            selectedFilter.innerHTML = value
+            subFilters.innerHTML = ''
+
+            if(options[value].isMatrix){
+                matrix.style.visibility = 'visible'
+            }
+            else{
+                matrix.style.visibility = 'hidden'
+            }
+
+            if(options[value].isHistogram){
+                histogramGraph.style.display = 'flex'
+                ctx1 = i_hist.getContext('2d')
+            
+                ctx1.clearRect(0,0,510,200)
+                ctx1.fillStyle = 'white'
+                ctx1.fillRect(0,0,510,200)
+                
+                ctx1 = o_hist.getContext('2d')
+            
+                ctx1.clearRect(0,0,510,200)
+                ctx1.fillStyle = 'white'
+                ctx1.fillRect(0,0,510,200)
+            }
+            else{
+                histogramGraph.style.display = 'none'
+            }
+
+            for(i = 0 ; i < options[value].btn.length ; i++){
+                btn = document.createElement('button')
+                btn.innerHTML = options[value].btn[i].label
+                btn.addEventListener('click' , options[value].btn[i].funct)
+                subFilters.appendChild(btn)
+            }
+            
+        }
+
+        loadOptions('Transformation Operations')
+
+        function b_download(anch){
+            if(outputImage.src != ''){
+                console.log(outputImage.src)
+                anch.download = 'output'
+                anch.href = outputImage.src
+            }
+               
+        }
+
+        
+        
+        function preview(){
+            openLabel.style.display = 'none'
+            img = inputImage
+            
+            img.src = URL.createObjectURL(inputFile.files[0]);
+            
+        }
+
+        function b_undo(){
+            if(undoStack.length > 1){
+                data = undoStack.pop()
+                redoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+                canvas.loadBuffer(data)
+
+                outputImage.src = outputCanvas.toDataURL()
+            }
+            
+        }
+
+        function b_redo(){
+            if(redoStack.length > 0){
+                data = redoStack.pop()
+                undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+                canvas.loadBuffer(data)
+
+                outputImage.src = outputCanvas.toDataURL()
+            }
+        }
+
+        function b_clear(){
+            redoStack = []
+            if(undoStack.length > 0){
+                canvas.loadBuffer(JSON.parse(JSON.stringify(undoStack[0])))
+                undoStack = [undoStack[0]]
+
+                outputImage.src = outputCanvas.toDataURL()
+            }
+        }
+
+        function b_toBackWhite(){
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            canvas.toBlackWhite()
+
+            outputImage.src = outputCanvas.toDataURL()
+        }
+
+        function b_toGrayScale(){ 
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            canvas.toGrayScale()
+
+            outputImage.src = outputCanvas.toDataURL()
+        }
+        
+        function b_toNegative(){ 
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            canvas.toNegative()
+
+            outputImage.src = outputCanvas.toDataURL()
+        }
+        
+        function b_maxFilter(){
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            canvas.pixelIterator((imageData,i,j,k) =>{
+                            max = 0
+                            for(a = -imageData.pad; a <= imageData.pad ; a++){
+                                for (b = -imageData.pad ; b <= imageData.pad; b++){
+                                    max = Math.max(max,imageData.data[k][i + a][j + b])
+                                }
+                            }
+                            return max
+            })
+
+            outputImage.src = outputCanvas.toDataURL()
+        }
+
+        function b_minFilter(){
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            canvas.pixelIterator((imageData,i,j,k) => {
+                            min = 255
+                            for(a = -imageData.pad; a <= imageData.pad ; a++){
+                                for (b = -imageData.pad ; b <= imageData.pad; b++){
+                                     min = (min < imageData.data[k][i + a][j + b]) ? min : imageData.data[k][i + a][j + b]
+                                }
+                            }
+
+                            return min
+            })
+
+            outputImage.src = outputCanvas.toDataURL()
+        }
+
+        function b_medianFilter(){
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            arr = []
+            
+            canvas.pixelIterator((imageData,i,j,k) => {
+                            count = 0
+                            for(a = -imageData.pad; a <= imageData.pad ; a++){
+                                for (b = -imageData.pad ; b <= imageData.pad ; b++){
+                                    arr[count] = (imageData.data[k][i + a][j + b])
+                                    count++
+                                }
+                            }
+
+                            for( a = 1 ;  a < arr.length ; a++){
+                                for (b = 0 ; b < arr.length - a ; b++){
+                                    if(arr[b] > arr[b + 1]){
+                                        count = arr[b + 1]
+                                        arr[b + 1] = arr[b] 
+                                        arr[b] = count
+                                    }
+                                }
+                            }
+                     
+                            return  arr[Math.floor((arr.length) / 2)]
+            })
+
+            outputImage.src = outputCanvas.toDataURL()
+        }
+
+        function b_averageFilter(){
+            //redoStack = []
+           // undoStack.push(JSON.parse(JSON.stringify(canvas.imageData)))
+
+            canvas.pixelIterator((imageData,i,j,k) => {
+                                sum = 0,count = 0
+                                for(a = -imageData.pad; a <= imageData.pad ; a++){
+                                    for (b = -imageData.pad ; b <= imageData.pad ; b++){
+                                        sum += imageData.data[k][i + a][j + b]
+                                        count++
+                                    }
+                                }
+
+                                return  Math.floor(sum/count)
+            })
+
+            outputImage.src = outputCanvas.toDataURL()
+        }
+
+        function b_histFilter(){
+            
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            extra = canvas.histEqualization()
+
+            console.log(extra)
+            ctx1 = i_hist.getContext('2d')
+            
+            ctx1.clearRect(0,0,510,200)
+            ctx1.fillStyle = 'white'
+            ctx1.fillRect(0,0,510,200)
+
+            ctx1.beginPath();
+            for(i = 0 ; i < 256 ; i ++){
+                x = (extra.hist[i]/extra.size) * 8000
+                ctx1.moveTo(i+i,200)
+                ctx1.lineTo(i+i,200 - x)
+                ctx1.lineWidth = 2
+                ctx1.stroke()
+            }
+            ctx1.closePath();
+
+            ctx2 = o_hist.getContext('2d')
+            
+            ctx2.clearRect(0,0,510,200)
+            ctx2.fillStyle = 'white'
+            ctx2.fillRect(0,0,510,200)
+
+            st = new Array(256).fill(0)
+            sum = 0
+            for(i = 0 ; i < 256 ; i ++){
+                
+                st[s[i]] += hist[i]
+                sum += hist[i]
+            }
+
+            ctx2.beginPath()
+            for(i = 0 ; i < 255 ; i ++){
+                x = (st[i]/extra.size) * 8000
+                ctx2.moveTo(i+i,200)
+                ctx2.lineTo(i+i,200 - x)
+                ctx2.lineWidth = 2
+                ctx2.stroke()
+            }
+
+            ctx2.closePath()
+            outputImage.src = outputCanvas.toDataURL()
+        }
+
+            
+        function loadMask(mask,nitr = 1){
+            n1.value = mask[0][0]
+            n2.value = mask[0][1]
+            n3.value = mask[0][2]
+            n4.value = mask[1][0]
+            n5.value = mask[1][1]
+            n6.value = mask[1][2]
+            n7.value = mask[2][0]
+            n8.value = mask[2][1]
+            n9.value = mask[2][2]
+            itr.value = nitr || 1
+            console.log(nitr)
+        }
+
+        function applyFilter(e,mask){
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            
+            canvas.applyMask(mask)
+
+            outputImage.src = outputCanvas.toDataURL()
+        }
+
+        function applyFilter(e){
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            
+            mask = [[n1.value,n2.value , n3.value],
+                    [n4.value,n5.value,n6.value],
+                    [n7.value,n8.value,n9.value]]
+            canvas.applyMask(mask,itr.value)
+
+            outputImage.src = outputCanvas.toDataURL()
+        }
+
+        
+
+    </script>
+</body>
+</html>

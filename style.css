@@ -1,0 +1,347 @@
+body{
+    margin: 0;
+    background-color: rgb(188, 188, 188);
+   }
+
+*{
+    font-family:Lato, sans-serif;
+    cursor: context-menu;
+}
+
+nav {
+    background-color: white;
+    padding: 16px 20px ;
+    width : 330px;
+    font-size: 24px;
+    font-style: italic;
+    font-weight: 700;
+    z-index: 2;
+    text-align: end;
+    display: flex;
+    align-items: center;
+}
+
+.filter{
+    display: flex;
+    height:max-content;
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: white;
+    box-shadow: 2px 2px 10px 1px rgba(27, 27, 27, 0.756);
+    
+}
+
+.filter .selected-filter{
+    box-sizing: border-box;
+    padding: 10px 40px;
+    min-width: 250px;
+    max-width: 250px;
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    background-color: orange;
+    position: relative;
+    font-weight: 600;
+    color: white;
+    font-size: 18px;
+    text-shadow: 1px 1px rgb(0, 0, 0);
+}
+
+.filter .selected-filter:hover .filter-options{
+    display: flex;
+}
+
+.filter .filter-options{
+    position: absolute; 
+    flex-direction: column;
+    border-top: 1px solid orangered;
+    display: none;
+    top: 99%;
+    left: 0;
+    z-index: 5;
+    padding: 0px 0px 10px 0px;
+}
+
+.filter .filter-options div{
+    box-sizing: border-box;
+    padding: 16px 40px;
+    width: 250px;
+    background-color: orange;
+}
+.filter .filter-options div:hover{
+    background-color: orangered;
+}
+
+.filter button{
+    background-color: blue;
+    padding: 8px  12px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+}
+
+.sub-filter{
+    box-sizing: border-box;
+    display: flex;
+    padding: 10px 20px;
+    flex-wrap:wrap;
+    width: 100%;
+    height: max-content;
+}
+
+.sub-filter button{
+    margin : 10px;
+}
+
+.sub-filter button{
+    background-color: blue;
+    padding: 8px  12px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 14px;
+}
+
+.content{
+    display: grid;
+    grid-template-columns: calc(50% - 80px) 160px calc(50% - 80px);
+    max-width: 100vw;
+    padding: 10px 20px;
+}
+
+.content .meta-info{
+    display: flex;
+    flex-direction: column;
+}
+
+.content .meta-info button{
+    width : 80px;
+    border: 2px solid ;
+    font-size: 14px;
+    border-radius: 2px;
+    padding: 6px;
+    color: purple;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+.content .matrix{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* width: fit-content; */
+}
+.content .matrix ol{
+    list-style: none;
+    display: inline-flex;
+    padding: 4px;
+    margin:0;
+}
+
+.content .matrix li{
+    padding : 0px 3px
+}
+
+.content .matrix input{
+    width : 22px;
+    height : 22px;
+}
+
+.content .matrix button{
+    width : 68px;
+    color: white;
+    font-weight: 600;
+    font-style: italic;
+    background-color: rgba(37, 37, 231, 0.938);
+    border: none;
+    padding: 6px;
+    border-radius: 2px;
+}
+
+.content .container{
+    
+    width:100%;
+    
+    display: flex;
+    flex-direction: column;
+    border-radius: 5px;
+    box-shadow:  0px 4px 10px 4px rgba(0, 0, 0, 0.653);
+}
+
+.content .container .canvas{
+    width: 100%;
+    background-color: rgb(0, 0, 0);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height : 600px;
+    align-items: center;
+    position: relative;
+}
+
+.content .container .canvas label{
+    height: 100%;
+    width:100%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    top: 0;
+    left:0;
+}
+
+.content .container .canvas img{
+    width:100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.content .container .canvas input{
+    display: none;
+}
+
+
+.content .task-bar-top{
+    background-color: white;
+    height : 40px;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    border-top-right-radius: 5px ;
+    border-top-left-radius: 5px ;
+    overflow: hidden;
+}
+
+
+.content .task-bar-bottom{
+    background-color: white;
+    min-height : 40px;
+    box-sizing: border-box;
+    width: 100%;
+    border-bottom-right-radius: 5px ;
+    border-bottom-left-radius: 5px ;
+    
+}
+
+.content .label{
+    width: 80%;
+    height: 100%;
+    align-items: center;
+    position: absolute;
+    text-align: center;
+    font-size: 30px;
+    justify-content: center;
+    display: flex;
+    z-index: 2;
+    color: white;
+}
+
+
+.content .meta-info{
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+
+.min-btn{
+    display: flex;
+    padding: 4px 10px;
+    height: 100%;
+    align-items: center;
+    border-radius: 2px;
+    grid-gap: 4px;
+    font-size: 14px;
+    color: black;
+    text-decoration: none;
+}
+
+.min-btn span{
+    color: black;
+    text-decoration: none;
+}
+
+.min-btn:-webkit-any-link{
+    text-decoration: none;
+}
+
+.min-btn:hover{
+    background-color: rgb(164, 164, 164);
+}
+
+
+input[type="Range"]{
+    transform:rotate(270deg);
+    height: 3px;
+}
+
+
+.extra-content{
+    box-sizing: border-box;
+    padding: 30px;
+    width: 100%;
+}
+
+.extra-content>div:nth-child(1){
+    box-sizing: border-box;
+    width:100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+.histogram{
+    display: flex;
+    width: 550px;
+    height: 240px;
+    position: relative;
+    box-shadow: -4px 6px 4px 1px rgba(0, 0, 0, 0.689);
+}
+
+.histogram div:nth-child(1){
+    width: 40px;
+    background-color: white;
+    height: 200px;
+    position: absolute;
+    border-right: 1px solid black;
+}
+
+.histogram div:nth-child(1)::before{
+    content: "0.025";
+    color: rgb(0, 0, 0);
+    font-size: 12px;
+    font-weight: bold;
+    position: absolute;
+    top:4px;
+    z-index: 5;
+    right: 4px;
+}
+
+.histogram div:nth-child(1)::after{
+    content: "0.000";
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+    position: absolute;
+    bottom: 4px;
+    z-index: 5;
+    right: 4px;
+    font-size: 12px;
+}
+
+.histogram div:nth-child(2){
+    height: 40px;
+    width: 550px;
+   
+    background-color: white;
+    position: absolute;
+    bottom: 0;
+    border-top:  1px solid black;
+}
+
+.histogram canvas{
+    margin-left: 40px;
+    width:510px;
+}
