@@ -65,7 +65,7 @@ canvas = {
             this.reloadBuffer()
         }
 
-        this.addImageToBuffer = function(img){
+        this.addImageToBuffer = function(img ,multipler = 1){
             canvas = document.createElement('canvas')
             canvas.height = img.naturalHeight
             canvas.width = img.naturalWidth
@@ -86,7 +86,7 @@ canvas = {
                 for(i = this.frontBuffer.pad ; i < yd + this.frontBuffer.pad ; i++ ){
                   
                     for( j = this.frontBuffer.pad ; j < xd + this.frontBuffer.pad ; j++){
-                        this.frontBuffer.data[k][i][j] += data.data[k][i - this.frontBuffer.pad][j - this.frontBuffer.pad]
+                        this.frontBuffer.data[k][i][j] += (data.data[k][i - this.frontBuffer.pad][j - this.frontBuffer.pad] * multipler)
                     }
                     
                 }
@@ -299,18 +299,23 @@ canvas = {
             dif = pad - this.frontBuffer.pad
             this.applyPadding(this.frontBuffer, dif )
             
+            t1 = this.backBuffer.height + this.backBuffer.pad
+            t2 = this.backBuffer.width + this.backBuffer.pad
+
             for(k = 2 ; k >= 0 ; k--){
                 if(this.frontBuffer.isGrayScale){
                     k = 0 
                     this.backBuffer.isGrayScale = true
                 }
                 for(n = 0 ; n < n_itr ; n++ ){
-                    for(i = this.backBuffer.pad; i < this.backBuffer.height + this.backBuffer.pad; i++){
-                        for (j = this.backBuffer.pad ; j < this.backBuffer.width + this.backBuffer.pad; j++){
+                    for(i = this.backBuffer.pad; i < t1 ; i++){
+                        t3 = i - pad
+                        for (j = this.backBuffer.pad ; j < t2 ; j++){
                             sum = 0
+                            t4 = j - pad
                             for(a = 0 ; a < mask.length ; a++){
                                 for(b = 0; b < mask.length ; b++){
-                                    sum += this.frontBuffer.data[k][i+a-pad][j+b-pad] * mask[a][b]
+                                    sum += this.frontBuffer.data[k][t3 + a][t4 + b] * mask[a][b]
                                 }
                             }
                             this.backBuffer.data[k][i][j] = sum
@@ -318,7 +323,7 @@ canvas = {
     
                         for(p = 0 ; p < this.backBuffer.pad ; p++){
                             this.backBuffer.data[k][i][p] = this.backBuffer.data[k][i][this.backBuffer.pad]
-                            this.backBuffer.data[k][i][this.backBuffer.data[k][i].length - 1 - p] = this.backBuffer.data[k][i][this.backBuffer.data[k][i].length - 1 - this.backBuffer.pad]
+                            this.backBuffer.data[k][i][t2 + p] = this.backBuffer.data[k][i][t2 + p - 1]
                         }
                     }
                 }

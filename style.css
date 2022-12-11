@@ -175,7 +175,7 @@ nav {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height : 600px;
+    height : 500px;
     align-items: center;
     position: relative;
 }

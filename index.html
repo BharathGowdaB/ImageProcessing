@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Image Processing</title>
     <style>
        
 
@@ -49,6 +49,7 @@
         <div class="meta-info">
             <button id="loadButton">Load</button>
             <button id="addButton">Add</button>
+            <button id="subtractButton">Sub</button>
             
             <div id="matrix" class="matrix">
                 <div><i><b>Mask</b></i></div>
@@ -142,6 +143,13 @@
             canvas.addImageToBuffer(inputImage)
             outputImage.src = outputCanvas.toDataURL()
         })
+
+        subtractButton.addEventListener('click', () => {
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+            canvas.addImageToBuffer(inputImage , -1)
+            outputImage.src = outputCanvas.toDataURL()
+        })
         
         
     </script>
@@ -159,6 +167,8 @@
                     {label : 'Balck & White' , funct : b_toBackWhite},
                     {label : 'GrayScale' , funct : b_toGrayScale },
                     {label : 'Negative' , funct : b_toNegative},
+                    {label : 'Power-Law' , funct: () => { b_toPowerLaw(1.5) } },
+                    {label : 'Log Transformation' , funct: () => { b_toLogTransform() } }
                 ]},
 
                 'Smoothing Filters' : {
@@ -172,9 +182,13 @@
                 'Sharpening Filters' : {
                     isMatrix : true,
                     btn : [
-                    {label : 'Laplacian 1' , funct : () => { mask = [[0, -1 ,0] , [ -1 , 4 , -1], [0, -1 ,0]]; loadMask(mask) ; applyFilter('',mask)}},
-                    {label : 'Laplacian 2' , funct : () => { mask = [[-1, -1 ,-1] , [ -1 , 8 , -1], [-1, -1 ,-1]] ; loadMask(mask); applyFilter('',mask)} , },
-                    {label : 'Custom', funct : () => { mask = [[0,0,0],[0,1,0],[0,0,0]] ; loadMask(mask); applyFilter('',mask)}}
+                    {label : 'Laplacian 1' , funct : () => { mask = [[0, -1 ,0] , [ -1 , 4 , -1], [0, -1 ,0]]; loadMask(mask) ; applyMask(mask)}},
+                    {label : 'Laplacian 2' , funct : () => { mask = [[-1, -1 ,-1] , [ -1 , 8 , -1], [-1, -1 ,-1]] ; loadMask(mask); applyMask(mask)}},
+                    {label : 'Prewitt x' , funct : () => { mask = [[-1, -1 ,-1] , [ 0 , 0 , 0], [1, 1 ,1]] ; loadMask(mask);  applyMask(mask)}},
+                    {label : 'Prewitt y' , funct : () => { mask = [[-1, 0 ,1] , [ -1 , 0 , 1], [-1, 0 ,1]] ; loadMask(mask);  applyMask(mask)}},
+                    {label : 'Sobel x' , funct : () => { mask = [[-1, -2 ,-1] , [ 0 , 0 , 0], [1, 2 ,1]] ; loadMask(mask);  applyMask(mask)}},
+                    {label : 'Sobel y' , funct : () => { mask = [[-1, 0 ,1] , [ -2 , 0 , 2], [-1, 0 ,1]] ; loadMask(mask);  applyMask(mask)}},
+                    {label : 'Custom', funct : () => { mask = [[0,0,0],[0,1,0],[0,0,0]] ; loadMask(mask);  }}
                 ]}
 
             }
@@ -222,7 +236,6 @@
 
         function b_download(anch){
             if(outputImage.src != ''){
-                console.log(outputImage.src)
                 anch.download = 'output'
                 anch.href = outputImage.src
             }
@@ -268,6 +281,30 @@
 
                 outputImage.src = outputCanvas.toDataURL()
             }
+        }
+
+        function b_toPowerLaw(gamma=0.7){
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+
+            mapper = 255/Math.pow(255,gamma)
+            canvas.pixelIterator((imageData,i,j,k) => {
+                return Math.floor(Math.pow(imageData.data[k][i][j],gamma) * mapper)
+            })
+
+            outputImage.src = outputCanvas.toDataURL()
+        }
+
+        function b_toLogTransform(){
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
+
+            mapper = 255/Math.log(256)
+            canvas.pixelIterator((imageData,i,j,k) => {
+                return Math.floor(Math.log( 1 + imageData.data[k][i][j]) * mapper)
+            })
+
+            outputImage.src = outputCanvas.toDataURL()
         }
 
         function b_toBackWhite(){
@@ -358,8 +395,8 @@
         }
 
         function b_averageFilter(){
-            //redoStack = []
-           // undoStack.push(JSON.parse(JSON.stringify(canvas.imageData)))
+            redoStack = []
+            undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
 
             canvas.pixelIterator((imageData,i,j,k) => {
                                 sum = 0,count = 0
@@ -382,7 +419,6 @@
             undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
             extra = canvas.histEqualization()
 
-            console.log(extra)
             ctx1 = i_hist.getContext('2d')
             
             ctx1.clearRect(0,0,510,200)
@@ -438,10 +474,9 @@
             n8.value = mask[2][1]
             n9.value = mask[2][2]
             itr.value = nitr || 1
-            console.log(nitr)
         }
 
-        function applyFilter(e,mask){
+        function applyMask(mask){
             redoStack = []
             undoStack.push(JSON.parse(JSON.stringify(canvas.frontBuffer)))
             
