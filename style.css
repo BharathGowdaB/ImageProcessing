@@ -102,6 +102,10 @@ nav {
     color: white;
     font-size: 14px;
 }
+.sub-filter button:hover{
+    cursor: pointer;
+    background-color: gray;
+}
 
 .content{
     display: grid;
@@ -124,6 +128,12 @@ nav {
     color: purple;
     margin-bottom: 20px;
     text-transform: uppercase;
+}
+
+.content .meta-info button:hover{
+    cursor: pointer;
+    background-color: purple;
+    color: white;
 }
 
 .content .matrix{
@@ -157,6 +167,11 @@ nav {
     border: none;
     padding: 6px;
     border-radius: 2px;
+}
+
+.content .matrix button:hover{
+    background-color: gray;
+    cursor: pointer;
 }
 
 .content .container{
@@ -260,6 +275,7 @@ nav {
     text-decoration: none;
 }
 
+
 .min-btn span{
     color: black;
     text-decoration: none;
@@ -271,6 +287,11 @@ nav {
 
 .min-btn:hover{
     background-color: rgb(164, 164, 164);
+    cursor: pointer;
+}
+
+.min-btn span:hover{
+    cursor: pointer;
 }
 
 
